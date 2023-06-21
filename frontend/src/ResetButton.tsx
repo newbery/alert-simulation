@@ -9,7 +9,6 @@ interface ResetButtonProps {
 function ResetButton({ onReset }: ResetButtonProps) {
   const handleReset = () => {
     onReset();
-    // Make an API call to reset the action
     axios.post('/api/reset')
       .then((response) => { console.log(response.data); })
       .catch((error) => { console.error(error); });

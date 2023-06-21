@@ -14,7 +14,6 @@ function StartButton({ onStart, settings, disabled }: StartButtonProps) {
 
   const handleStart = () => {
     onStart();
-    // Make an API call to start the action
     axios.post('/api/start', settings)
       .then((response) => { console.log(response.data); })
       .catch((error) => { console.error(error); });

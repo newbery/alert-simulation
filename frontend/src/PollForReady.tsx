@@ -28,7 +28,6 @@ function PollForReady({ onReady, settings }: PollForReadyProps) {
         });
     }, 1000);
 
-    // Cleanup the interval and cancel the request when component unmounts
     return () => {
       clearInterval(intervalId);
       cancelTokenSourceRef.current?.cancel('Component unmounted');

@@ -1,12 +1,11 @@
-
 import shlex
 import time
 from functools import cached_property
 from subprocess import run, Popen, DEVNULL
 
-from amqp import ChannelError
+from amqp import ChannelError  # type: ignore
 from fastapi import BackgroundTasks
-from celery import Celery, Task
+from celery import Celery, Task  # type: ignore
 
 from .redis_helpers import connect, reset_counts, read_counts, update_counts
 from .settings import Config, Settings
@@ -18,6 +17,10 @@ quiet = dict(stdout=DEVNULL, stderr=DEVNULL, stdin=DEVNULL)
 
 
 async def init(config: Config, settings: Settings, background: BackgroundTasks) -> None:
+    """Initialize the simulation setup.
+
+    In this case, that means initialize celery workers and queue up messages.
+    """
 
     # Option #1: Init a single worker, with multiple processes
     # number_of_workers = 1
@@ -37,18 +40,24 @@ async def init(config: Config, settings: Settings, background: BackgroundTasks) 
 
 
 async def ready(config: Config, settings: Settings) -> dict:
+    """Check if the simulation setup is ready"""
     return check_if_ready(config, settings)
 
 
-async def start(config: Config, settings: Settings) -> None:
+async def start(
+    config: Config, settings: Settings, background: BackgroundTasks
+) -> None:
+    """Start the simulation"""
     start_workers(celery)
 
 
 async def status(config: Config) -> dict:
+    """Get the running results of the simulation"""
     return read_counts(connect())
 
 
 async def reset(config: Config) -> None:
+    """Teardown/reset the simulation"""
     reset_celery(celery)
     reset_counts(connect())
 
@@ -59,7 +68,7 @@ def init_workers(
     pool: str = "prefork",
 ):
     """Start the celery workers in 'non-consuming' mode with '-Q' blank.
-    
+
     TODO: This uses the celery command line for now. Maybe refactor to
     use celery.control instead.
     """
@@ -69,18 +78,18 @@ def init_workers(
     )
     for i in range(number_of_workers):
         full_command = command + f" -n simworker{i+1}@%h"
-        Popen(shlex.split(full_command), **quiet)
+        Popen(shlex.split(full_command), **quiet)  # type: ignore
 
 
 def check_if_ready(config: Config, settings: Settings) -> dict:
     """Check if the celery workers and messages are ready"""
 
     # Check if all the workers are running
-    command = 'celery -A backend._celery status'
+    command = "celery -A backend._celery status"
     result = run(shlex.split(command), capture_output=True, text=True)
     output = result.stdout.strip()
     workers_ready = output.count("simworker") >= settings.number_of_processes
-    
+
     # Check if all the messages are queued
     with celery.connection() as conn:
         try:
@@ -108,12 +117,12 @@ def reset_celery(celery: Celery) -> None:
     # Ignore the error message from this:
     #   "Error: No nodes replied within time constraint"
     command = "celery -A backend._celery control shutdown"
-    Popen(shlex.split(command), **quiet)
-    
+    Popen(shlex.split(command), **quiet)  # type: ignore
+
     # TODO: There is probably a better way to wait for workers to shutdown
     # Experiment with something like the workers_exist function below.
-    time.sleep(2) 
-    
+    time.sleep(2)
+
     celery.control.purge()
 
 
@@ -133,7 +142,6 @@ def queue_task(config: Config, settings: Settings) -> None:
 
 
 class RedisTask(Task):
-
     def __init__(self):
         super().__init__()
         self._redis = connect()
@@ -141,7 +149,6 @@ class RedisTask(Task):
     @cached_property
     def redis(self):
         return self._redis
-
 
 
 @celery.task(base=RedisTask, bind=True)
@@ -154,4 +161,4 @@ def message_task(
     delaydist: tuple[float, float],
 ) -> bool:
     delay, failed = send_message(message, phone_number, failure_rate, delaydist)
-    update_counts(self.redis, delay, failed)
+    return bool(update_counts(self.redis, delay, failed))

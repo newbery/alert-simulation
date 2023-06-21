@@ -1,4 +1,3 @@
-
 from redis import Redis
 from redis.commands.core import Script
 
@@ -46,11 +45,11 @@ def connect() -> Redis:
     """Reuse the Redis connection pool if it's available"""
     global _redis_conn
     if _redis_conn is None:
-        _redis_conn = Redis(host='localhost', port=6379, db=0)
+        _redis_conn = Redis(host="localhost", port=6379, db=0)
     return _redis_conn
 
 
-def script(redis_conn: Redis) -> None:
+def script(redis_conn: Redis) -> Script:
     """Reuse the Script object if it's available to avoid recalculating
     the SHA1 on every call. Maybe a premature optimization.
     """
@@ -58,13 +57,13 @@ def script(redis_conn: Redis) -> None:
     if _lua_script is None:
         _lua_script = redis_conn.register_script(lua_script)
     return _lua_script
-        
 
-def update_counts(redis_conn: Redis, time_to_complete: float, failed: bool) -> None:
-    """Update counters on Redis"""
+
+def update_counts(redis_conn: Redis, time_to_complete: float, failed: bool) -> float:
+    """Update counters on Redis. Returns the updated average."""
     keys = ("messages:sum", "messages:count", "messages:average", "failed")
     args = (time_to_complete, int(failed))
-    script(redis_conn)(keys, args, redis_conn)
+    return float(script(redis_conn)(keys, args, redis_conn) or 0)
 
 
 def reset_counts(redis_conn: Redis) -> None:
@@ -77,8 +76,9 @@ def reset_counts(redis_conn: Redis) -> None:
 
 def read_counts(redis_conn: Redis) -> dict:
     """Read counters from Redis"""
+    average = round(float(redis_conn.get("messages:average") or 0), 4)
     return {
-        "count": redis_conn.get("messages:count") or 0,
-        "failed": redis_conn.get("failed") or 0,
-        "average_time": redis_conn.get("messages:average") or 0,
+        "count": int(redis_conn.get("messages:count") or 0),
+        "failed": int(redis_conn.get("failed") or 0),
+        "average_time": average,
     }

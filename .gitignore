@@ -1,10 +1,12 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 /.venv
-
-/frontend copy
+__pycache__
 
 # testing
 /coverage
+.pytest_cache
+.ruff_cache
 
-__pycache__
+# deployment tasks
+/tasks.py

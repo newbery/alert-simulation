@@ -1,78 +1,49 @@
-
-from fastapi import BackgroundTasks, FastAPI
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import dispatch
-from .settings import Config, Settings
+from .dispatch import Backend
+from .settings import Settings
 
 app = FastAPI()
 
 app.mount("/app", StaticFiles(directory="frontend/build", html=True), name="home")
 app.mount("/static", StaticFiles(directory="frontend/build/static"), name="static")
 
-#templates = Jinja2Templates(directory="frontend/build")
-
-
-# The following CORS middleware setup is a placeholder
-# in case we find we need it later. Sometimes we need to do
-# this when we have cross-origin requests originating from
-# different protocols, IPs, domain names, or ports.
-#
-# For the current development case, we're launching the frontend
-# in "development mode" and using "http-proxy-middleware" on the
-# javascript side which works okay without CORS.
-#
-# from fastapi.middleware.cors import CORSMiddleware
-#
-# origins = [
-#   "http://localhost:3000",
-#   "localhost:3000",
-# ]
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"]
-# )
-
 
 @app.get("/")
-async def redirect():
+async def redirect(backend: Backend):
     """Redirect to React app page"""
-    return RedirectResponse(url="/app/", status_code=302) 
+    return RedirectResponse(url="/app/", status_code=302)
 
 
 @app.post("/api/init")
-async def handle_init(
-    config: Config, settings: Settings, background: BackgroundTasks
-) -> None:
+async def handle_init(backend: Backend, settings: Settings) -> None:
     """Initialize the simulation setup"""
-    await dispatch.init(config, settings, background)
+    await backend.init(settings)
 
 
 @app.post("/api/ready")
-async def handle_ready(config: Config, settings: Settings) -> dict:
+async def handle_ready(backend: Backend, settings: Settings) -> dict:
     """Check if the simulation setup is ready"""
-    result = await dispatch.ready(config, settings)
+    result = await backend.ready(settings)
     return result
 
 
 @app.post("/api/start")
-async def handle_start(config: Config, settings: Settings) -> None:
+async def handle_start(backend: Backend, settings: Settings) -> None:
     """Start the simulation"""
-    await dispatch.start(config, settings)
+    await backend.start(settings)
 
 
 @app.get("/api/status")
-async def handle_status(config: Config) -> dict:
-    """Check the running results of the simulation"""
-    result = await dispatch.status(config)
+async def handle_status(backend: Backend) -> dict:
+    """Get the running results of the simulation"""
+    result = await backend.status()
     return result
 
 
 @app.post("/api/reset")
-async def handle_reset(config: Config) -> None:
-    """Teardown and reset the simulation"""
-    await dispatch.reset(config)
+async def handle_reset(backend: Backend) -> None:
+    """Teardown/reset the simulation"""
+    await backend.reset()

@@ -39,13 +39,13 @@ function SettingsForm({ onSubmit }: SettingsFormProps) {
       </div>
 
       <div id="failureRate">
-        <label htmlFor="failureRate">Failure rate:</label>
+        <label htmlFor="failureRate">Failure rate (0.0-1.0):</label>
         <input type="text" id="failureRate" name="failureRate"
           value={settings.failureRate} onChange={handleChange} />
       </div>
 
       <div id="monitoringInterval">
-        <label htmlFor="monitoringInterval">Monitoring interval:</label>
+        <label htmlFor="monitoringInterval">Monitoring interval (sec):</label>
         <input type="text" id="monitoringInterval" name="monitoringInterval"
           value={settings.monitoringInterval} onChange={handleChange} />
       </div>

@@ -14,10 +14,17 @@ run the backend server which automatically serves the latest frontend 'build'.
 
 ## Development mode
 
-```bash
-cd frontend
-npm start
-```
+Move into the 'frontend' directory.
+
+`cd frontend`
+
+Install requirements:
+
+`npm install`
+
+Launch the app:
+
+`npm start`
 
 This runs the application in "development mode".
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
