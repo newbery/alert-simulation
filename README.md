@@ -54,10 +54,10 @@ I may then need to refactor the frontend a bit to query the backend for
 appState instead of maintaining it in the browser instance.
 
 4)  So far, this repo contains two backend implementations; one using a
-a multiprocessor pool via concurrent.futures, and one using a simple Celery
-solution using Redis as a queue. I would like to finish at least two more;
-a multi-threaded version and a completely asyncio'd version. I suspect the
-single-process/multi-threaded version will be the most performant.
+multiprocessor pool via `concurrent.futures`, and one using a simple Celery
+solution with Redis as a queue. I would like to finish at least three more;
+a multi-threaded version, a completely asyncio'd version, and maybe one
+using AWS SQS + AWS Lambda.
 
 5)  The 'reset' actions for both current implementations are not robust enough.
 It mostly works but sometimes processes are still left dangling or the queue is
