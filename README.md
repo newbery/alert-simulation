@@ -31,3 +31,36 @@ Postgres:
 
 Under construction is a docker-compose.yml file that can be used launch all of these.
 
+
+## To Do
+
+This app was quickly cobbled together and no doubt has some rough edges.
+
+A list of todo's:
+
+1)  There are no guardrails on the settings submitted by the frontend.
+Right now, it's pretty trivially easy to DOS the backend. This should be
+an easy fix.
+
+2)  Somewhat related to the above, there is no error handling on the frontend.
+Form entry validation should ideally happen on both frontend and backend
+with the frontend being smart enough to display user-friendly errors.
+
+3)  There is no session management going on so if you hit the backend from
+multiple browser windows, you'll likely see some odd results. What would
+multi-session support look like? Would that just make it easier to tip
+over the backend? Do I want instead to enforce a single session? For that,
+I may then need to refactor the frontend a bit to query the backend for
+appState instead of maintaining it in the browser instance.
+
+4)  So far, this repo contains two backend implementations; one using a
+a multiprocessor pool via concurrent.futures, and one using a simple Celery
+solution using Redis as a queue. I would like to finish at least two more;
+a multi-threaded version and a completely asyncio'd version. I suspect the
+single-process/multi-threaded version will be the most performant.
+
+5)  The 'reset' actions for both current implementations are not robust enough.
+It mostly works but sometimes processes are still left dangling or the queue is
+not completely purged. I should diagnose and fix this.
+
+6)  More unit tests :)
