@@ -29,9 +29,18 @@ form {
   margin-bottom: 20px;
 }
 
+form span.error {
+  color: red;
+  font-weight: bold;
+  float: right;
+}
+
+form .row {
+  margin-bottom: 30px;
+}
+
 input[type="text"], button {
   padding: 10px;
-  margin-bottom: 10px;
   width: 100%;
   box-sizing: border-box;
 }
