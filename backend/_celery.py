@@ -16,7 +16,7 @@ celery = Celery("backend", broker="redis://localhost:6379/0")
 quiet = dict(stdout=DEVNULL, stderr=DEVNULL, stdin=DEVNULL)
 
 
-async def init(config: Config, settings: Settings, background: BackgroundTasks) -> None:
+def init(config: Config, settings: Settings, background: BackgroundTasks) -> None:
     """Initialize the simulation setup.
 
     In this case, that means initialize celery workers and queue up messages.
@@ -39,24 +39,24 @@ async def init(config: Config, settings: Settings, background: BackgroundTasks) 
         queue_task(config, settings)
 
 
-async def ready(config: Config, settings: Settings) -> dict:
+def ready(config: Config, settings: Settings) -> dict:
     """Check if the simulation setup is ready"""
     return check_if_ready(config, settings)
 
 
-async def start(
+def start(
     config: Config, settings: Settings, background: BackgroundTasks
 ) -> None:
     """Start the simulation"""
     start_workers(celery)
 
 
-async def status(config: Config) -> dict:
+def status(config: Config) -> dict:
     """Get the running results of the simulation"""
     return read_counts(connect())
 
 
-async def reset(config: Config) -> None:
+def reset(config: Config) -> None:
     """Teardown/reset the simulation"""
     reset_celery(celery)
     reset_counts(connect())

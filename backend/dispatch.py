@@ -23,23 +23,20 @@ class Backend:
         self.background = background
         self.backend = IMPLEMENTATIONS[config.impl]
 
-    async def init(self, settings: Settings) -> bool:
-        result = await self.backend.init(self.config, settings, self.background)
-        return result
+    def init(self, settings: Settings) -> bool:
+        return self.backend.init(self.config, settings, self.background)
 
-    async def ready(self, settings: Settings) -> dict:
-        result = await self.backend.ready(self.config, settings)
-        return result
+    def ready(self, settings: Settings) -> dict:
+        return self.backend.ready(self.config, settings)
 
-    async def start(self, settings: Settings) -> None:
-        await self.backend.start(self.config, settings, self.background)
+    def start(self, settings: Settings) -> None:
+        self.backend.start(self.config, settings, self.background)
 
-    async def status(self) -> dict:
-        result = await self.backend.status(self.config)
-        return result
+    def status(self) -> dict:
+        return self.backend.status(self.config)
 
-    async def reset(self) -> None:
-        await self.backend.reset(self.config)
+    def reset(self) -> None:
+        self.backend.reset(self.config)
 
 
 Backend = Annotated[Backend, Depends(Backend)]  # type: ignore
