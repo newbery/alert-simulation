@@ -23,13 +23,13 @@ function PollForStatus({ settings }: PollForStatusProps) {
   useEffect(() => {
 
     const intervalId = setInterval(() => {
-      axios.get('/api/status')
+      axios.post('/api/status', settings)
         .then((response) => { setCurrentStatus(response.data); })
         .catch((error) => { console.error(error); });
     }, settings.monitoringInterval * 1000);
 
     return () => clearInterval(intervalId);
-  }, [settings.monitoringInterval]);
+  }, [settings]);
 
   return (
     <div>

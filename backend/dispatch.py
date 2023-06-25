@@ -29,14 +29,14 @@ class Backend:
     def ready(self, settings: Settings) -> dict:
         return self.backend.ready(self.config, settings)
 
-    def start(self, settings: Settings) -> None:
-        self.backend.start(self.config, settings, self.background)
+    def start(self, settings: Settings) -> dict:
+        return self.backend.start(self.config, settings, self.background)
 
-    def status(self) -> dict:
-        return self.backend.status(self.config)
+    def status(self, settings: Settings) -> dict:
+        return self.backend.status(self.config, settings)
 
-    def reset(self) -> None:
-        self.backend.reset(self.config)
+    def reset(self, settings: Settings) -> dict:
+        return self.backend.reset(self.config, settings)
 
 
 Backend = Annotated[Backend, Depends(Backend)]  # type: ignore

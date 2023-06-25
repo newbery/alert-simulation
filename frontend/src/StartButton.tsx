@@ -5,12 +5,12 @@ import { Settings } from './Settings';
 
 
 interface StartButtonProps {
-  onStart: () => void;
   settings: Settings;
   disabled: boolean;
+  onStart: () => void;
 }
 
-function StartButton({ onStart, settings, disabled }: StartButtonProps) {
+function StartButton({ settings, disabled, onStart }: StartButtonProps) {
 
   const handleStart = () => {
     onStart();

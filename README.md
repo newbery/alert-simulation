@@ -1,7 +1,18 @@
 
 # Alert Simulation App
 
-See http://digitalmarbles.com/alert-simulation.html for details.
+This is a test app using FastAPI on the backend and React on the frontend.
+The goal is to simulate a simple alerting system where a user can submit
+a set of settings that define an alert and then trigger the simulation.
+
+There is some basic single-session enforcement going on but no true authentication.
+When starting a session, you are simply asked to give it a name and someone
+can join your session if they know this name. I suggest using your real
+name or email address so that any collegues trying to join the current
+session can find you.
+
+For management purposes, the admin has a secret name that can be used to
+join any session.
 
 
 ## Getting Started

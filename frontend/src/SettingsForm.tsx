@@ -6,17 +6,32 @@ import { Settings, defaultSettings } from './Settings';
 
 
 interface SettingsFormProps {
-  onSubmit: (settings: Settings) => void;
+  onSubmit: (settings: Settings, showJoin: boolean) => void;
+  showJoin?: boolean;
 }
 
-function SettingsForm({ onSubmit }: SettingsFormProps) {
+function SettingsForm({ onSubmit, showJoin = false }: SettingsFormProps) {
   const { register, handleSubmit, formState: { errors } } = useForm<Settings>({ defaultValues: defaultSettings });
 
   const handleSubmit2 = (settings: Settings) => {
     axios.post('/api/init', settings)
-      .then((response) => { console.log(response.data); })
+      .then((response) => {
+        const data = response.data;
+        console.log(data);
+        // If another session exists, take those values and trigger joinForm
+        if (settings.sessionId !== data.session_id) {
+          showJoin = true;
+          settings.sessionId = data.session_id;
+          settings.sessionSecret = "";
+          settings.sessionName = data.session_name;
+          settings.numberOfMessages = data.number_of_messages;
+          settings.numberOfProcesses = data.number_of_processes;
+          settings.failureRate = data.failure_rate;
+          settings.monitoringInterval = data.monitoring_interval;
+        };
+        onSubmit(settings, showJoin);
+      })
       .catch((error) => { console.error(error); });
-    onSubmit(settings);
   };
 
   const tooLow = "value is too low";
@@ -31,12 +46,25 @@ function SettingsForm({ onSubmit }: SettingsFormProps) {
   const zero_to_one = {
     valueAsNumber: true, validate: isNumber, min: {value: 0.0, message: tooLow}, max: {value: 1.0, message: tooHigh }
   };
-  const one_tenth = {
-    valueAsNumber: true, validate: isNumber, min: {value: 0.1, message: tooLow}
-};
+  const one_half = {
+    valueAsNumber: true, validate: isNumber, min: {value: 0.5, message: tooLow}
+  };
 
   return (
     <form aria-label="Settings Form" onSubmit={ handleSubmit(handleSubmit2) }>
+ 
+      <div id="sessionName" className="row">
+        <label htmlFor="sessionName">Session name (example: "Jane Smith"):</label>
+        <input type="text" { ...register("sessionName", { required: "session name is required" }) } />
+        { errors.sessionName && <span className="error">{errors.sessionName.message}</span> }
+      </div>
+
+      <div id="sessionSecret" className="row">
+        <label htmlFor="sessionSecret">Session key (allows session sharing):</label>
+        <input type="text" { ...register("sessionSecret", { required: "session key is required" }) } />
+        { errors.sessionSecret && <span className="error">{errors.sessionSecret.message}</span> }
+      </div>
+
       <div id="numberOfMessages" className="row">
         <label htmlFor="numberOfMessages">No. of messages (max: 1000000):</label>
         <input type="text" { ...register("numberOfMessages", one_to_million) } />
@@ -57,10 +85,10 @@ function SettingsForm({ onSubmit }: SettingsFormProps) {
 
       <div id="monitoringInterval" className="row">
         <label htmlFor="monitoringInterval">Monitoring interval (min: 0.1 sec):</label>
-        <input type="text" { ...register("monitoringInterval", one_tenth) } />
+        <input type="text" { ...register("monitoringInterval", one_half) } />
         { errors.monitoringInterval && <span className="error">{errors.monitoringInterval.message}</span> }
       </div>
-
+    
       <button type="submit" className="row">Submit</button>
     </form>
   );

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Settings, defaultSettings } from './Settings';
 import CurrentSettings from './SettingsCurrent';
 import SettingsForm from './SettingsForm';
+import JoinForm from './JoinForm';
 import PollForReady from './PollForReady';
 import PollForStatus from './PollForStatus';
 import StartButton from './StartButton';
@@ -10,6 +11,7 @@ import ResetButton from './ResetButton';
 
 export enum AppState {
   INIT,
+  JOIN,
   POLLING,
   READY,
   RUNNING,
@@ -19,9 +21,22 @@ function App() {
   const [appState, setAppState] = useState<AppState>(AppState.INIT);
   const [currentSettings, setCurrentSettings] = useState<Settings>({ ...defaultSettings });
 
-  const handleSettingsSubmit = (settings: Settings) => {
+  const handleSettingsSubmit = (settings: Settings, showJoin: boolean) => {
     setCurrentSettings(settings);
-    setAppState(AppState.POLLING);
+    if (showJoin) {
+      setAppState(AppState.JOIN);
+    } else {
+      setAppState(AppState.POLLING);
+    };
+  };
+
+  const handleJoinSubmit = (settings: Settings, showJoin: boolean) => {
+    setCurrentSettings(settings);
+    if (showJoin) {
+      setAppState(AppState.JOIN);
+    } else {
+      setAppState(AppState.READY);
+    };
   };
 
   const handleReady = () => {
@@ -44,12 +59,13 @@ function App() {
     <>
       <div id="controls">
         {appState === AppState.INIT && <SettingsForm onSubmit={handleSettingsSubmit} />}
+        {appState === AppState.JOIN && <JoinForm settings={currentSettings} onSubmit={handleJoinSubmit} />}
         {showSettings.includes(appState) && (
           <>
             <CurrentSettings settings={currentSettings} />
             <div id="buttons">
-              <StartButton onStart={handleStart} settings={currentSettings} disabled={disableStart.includes(appState)} />
-              <ResetButton onReset={handleReset} />
+              <StartButton settings={currentSettings} disabled={disableStart.includes(appState)} onStart={handleStart} />
+              <ResetButton settings={currentSettings} onReset={handleReset} />
             </div>
           </>
         )}

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -18,9 +18,9 @@ def redirect(backend: Backend):
 
 
 @app.post("/api/init")
-def handle_init(backend: Backend, settings: Settings) -> None:
+def handle_init(backend: Backend, settings: Settings) -> dict:
     """Initialize the simulation setup"""
-    backend.init(settings)
+    return backend.init(settings)
 
 
 @app.post("/api/ready")
@@ -30,18 +30,18 @@ def handle_ready(backend: Backend, settings: Settings) -> dict:
 
 
 @app.post("/api/start")
-def handle_start(backend: Backend, settings: Settings) -> None:
+def handle_start(backend: Backend, settings: Settings) -> dict:
     """Start the simulation"""
-    backend.start(settings)
+    return backend.start(settings)
 
 
-@app.get("/api/status")
-def handle_status(backend: Backend) -> dict:
+@app.post("/api/status")
+def handle_status(backend: Backend, settings: Settings) -> dict:
     """Get the running results of the simulation"""
-    return backend.status()
+    return backend.status(settings)
 
 
 @app.post("/api/reset")
-def handle_reset(backend: Backend) -> None:
+def handle_reset(backend: Backend, settings: Settings) -> dict:
     """Teardown/reset the simulation"""
-    backend.reset()
+    return backend.reset(settings)
