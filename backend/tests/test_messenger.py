@@ -27,10 +27,10 @@ def test_send_message(mocker, freezer):
     """
 
     def mock_sleep(seconds):
-        return lambda x, y: freezer.tick(seconds)
+        return lambda x, y, z: freezer.tick(seconds)
 
     mocker.patch.object(messenger, "random_sleep", mock_sleep(123))
-    delaydist = (0, 0)
+    delaydist = (0, 0, 0)
 
     # success case
     delay, failed = messenger.send_message("text", "1-111-1111", 0.0, delaydist)
@@ -57,7 +57,7 @@ def test_random_sleep(mocker):
     stats.truncnorm.return_value = mocker.Mock(**{"rvs.return_value": 0})
 
     start = time.perf_counter()
-    messenger.random_sleep(11, 1)
+    messenger.random_sleep(11, 1, 1)
     end = time.perf_counter()
 
     # We've checked the time three times above so the clock has advanced
