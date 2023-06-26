@@ -29,9 +29,6 @@ Launch the app:
 This runs the application in "development mode".
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-You can open the app manually in multiple web browser windows but the behavior
-in that case will likely be unpredictable as multiple sessions are not supported.
-
 The page will reload if you make edits. You will also see any lint errors in the console.
 
 
