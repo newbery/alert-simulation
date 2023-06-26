@@ -8,7 +8,7 @@ from humps import camelize
 
 class Settings(BaseModel):
     """User-controlled settings"""
-    
+
     session_id: str | None = None
     session_key: str | None = None
 
@@ -35,7 +35,7 @@ def check_session(
     The "create" argument is a way to signal that it's okay to start a
     new session if one doesn't already exist. There is a small possibility
     of a race condition in this case but probably acceptable.
-    
+
     `session_id`: a unique session id generated the server during session
     initializating and is echoed back in the response if it matches the
     current session.
@@ -94,7 +94,7 @@ class _Config(BaseSettings):
     # These values are in seconds.
     message_time_mean: float = 10.0
     message_time_stdev: float = 2.0
-    
+
     # Set to a non-empty string to enable management session override.
     # It's probably better to put this value in the ".env" file rather
     # than here in the code. Leave it blank to disable overrides.

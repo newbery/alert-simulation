@@ -32,7 +32,7 @@ def init(config: Config, settings: Settings, background: BackgroundTasks) -> dic
     concurrency = 1
 
     reset_celery(celery)
-    
+
     print("Add background task")
     background.add_task(init_workers, number_of_workers, concurrency=concurrency)
     print("Background task added")
@@ -42,7 +42,7 @@ def init(config: Config, settings: Settings, background: BackgroundTasks) -> dic
     for i in range(number_of_messages):
         queue_task(config, settings)
     print("All messages queued up")
-    
+
     return {}
 
 
@@ -51,9 +51,7 @@ def ready(config: Config, settings: Settings) -> dict:
     return check_if_ready(config, settings)
 
 
-def start(
-    config: Config, settings: Settings, background: BackgroundTasks
-) -> dict:
+def start(config: Config, settings: Settings, background: BackgroundTasks) -> dict:
     """Start the simulation"""
     start_workers(celery)
     return {}

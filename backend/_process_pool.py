@@ -21,9 +21,7 @@ def ready(config: Config, settings: Settings) -> dict:
     return {"ready": True}
 
 
-def start(
-    config: Config, settings: Settings, background: BackgroundTasks
-) -> dict:
+def start(config: Config, settings: Settings, background: BackgroundTasks) -> dict:
     """Start the simulation"""
     print("Before start tasks")
     start_tasks(config, settings)
@@ -64,11 +62,11 @@ def reset_simulation():
         print("Start executor shutdown")
         executor_.shutdown(wait=True, cancel_futures=True)
         print("Finished executor shutdown")
-        
+
         # reset counts once more in case any stragglers snuck in during shutdown
         # reset_counts(redis_conn)
 
-        
+
 def set_executor(e: futures.Executor | None) -> None:
     """"""
     global executor

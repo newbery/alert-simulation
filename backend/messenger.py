@@ -28,7 +28,7 @@ def send_message(
 ) -> tuple[float, bool]:
     """Simulates sending an SMS message but doesn't actually do anything
     except sleep for some random time before returning the time and whether
-    the send operation failed (also randomized).    
+    the send operation failed (also randomized).
     """
     start = time.perf_counter()
     random_sleep(*delaydist)

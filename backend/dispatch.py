@@ -24,7 +24,7 @@ class Backend:
         self.config = config
         self.tasks = tasks
         self.backend = IMPLEMENTATIONS[config.impl]
-    
+
     def call(self, method: str, settings: Settings, *args, create=False) -> dict:
         ok, session_dict = check_session(settings, create=create)
         if ok:
