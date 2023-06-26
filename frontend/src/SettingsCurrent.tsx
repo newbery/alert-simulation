@@ -11,8 +11,6 @@ function CurrentSettings({ settings }: CurrentSettingsProps) {
   return (
     <div aria-label="Current Settings">
       <h2>Current Settings:</h2>
-      <p>Session name: {settings.sessionName}</p>
-      <p>Session key: {settings.sessionSecret}</p>
       <p>No. of messages: {settings.numberOfMessages}</p>
       <p>No. of processes: {settings.numberOfProcesses}</p>
       <p>Failure rate (0.0-1.0): {settings.failureRate}</p>

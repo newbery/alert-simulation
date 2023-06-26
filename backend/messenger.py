@@ -2,6 +2,7 @@ import random
 import string
 import time
 
+import numpy as np  # type: ignore
 from scipy import stats  # type: ignore
 
 
@@ -23,11 +24,11 @@ def send_message(
     message: str,
     phone_number: str,
     failure_rate: float,
-    delaydist: tuple[float, float],
+    delaydist: tuple[float, float, int],
 ) -> tuple[float, bool]:
     """Simulates sending an SMS message but doesn't actually do anything
-    but sleep for some random time before returning the time and whether
-    the send operation failed (also simulated).
+    except sleep for some random time before returning the time and whether
+    the send operation failed (also randomized).    
     """
     start = time.perf_counter()
     random_sleep(*delaydist)
@@ -36,17 +37,15 @@ def send_message(
     return delay, failed
 
 
-def random_sleep(mean: float, stdev: float) -> None:
+def random_sleep(mean: float, stdev: float, seed: int) -> None:
     """Sleep for random amount of time, based on given mean & stdev.
 
     Since negative time doesn't make sense for this case, let's generate
     the delay from a truncated normal distribution which still gives us a
     well-behaved distribution around the desired mean.
-
-    TODO: The trunc_norm distribution should maybe be cached somewhere.
-    Re-initializing it for each call to this function seems wasteful.
     """
     lower_limit = -mean / stdev
     upper_limit = float("inf")
-    trunc_norm = stats.truncnorm(lower_limit, upper_limit, loc=mean, scale=stdev)
-    time.sleep(trunc_norm.rvs())
+    truncnorm = stats.truncnorm(lower_limit, upper_limit, loc=mean, scale=stdev)
+    np.random.seed(seed)
+    time.sleep(truncnorm.rvs())

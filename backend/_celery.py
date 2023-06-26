@@ -1,3 +1,4 @@
+import os
 import shlex
 import time
 from functools import cached_property
@@ -16,7 +17,7 @@ celery = Celery("backend", broker="redis://localhost:6379/0")
 quiet = dict(stdout=DEVNULL, stderr=DEVNULL, stdin=DEVNULL)
 
 
-def init(config: Config, settings: Settings, background: BackgroundTasks) -> None:
+def init(config: Config, settings: Settings, background: BackgroundTasks) -> dict:
     """Initialize the simulation setup.
 
     In this case, that means initialize celery workers and queue up messages.
@@ -31,12 +32,18 @@ def init(config: Config, settings: Settings, background: BackgroundTasks) -> Non
     concurrency = 1
 
     reset_celery(celery)
+    
+    print("Add background task")
     background.add_task(init_workers, number_of_workers, concurrency=concurrency)
+    print("Background task added")
 
-    # Queue up the message tasks
+    print("Queue up message tasks")
     number_of_messages = settings.number_of_messages
     for i in range(number_of_messages):
         queue_task(config, settings)
+    print("All messages queued up")
+    
+    return {}
 
 
 def ready(config: Config, settings: Settings) -> dict:
@@ -46,20 +53,22 @@ def ready(config: Config, settings: Settings) -> dict:
 
 def start(
     config: Config, settings: Settings, background: BackgroundTasks
-) -> None:
+) -> dict:
     """Start the simulation"""
     start_workers(celery)
+    return {}
 
 
-def status(config: Config) -> dict:
+def status(config: Config, settings: Settings) -> dict:
     """Get the running results of the simulation"""
     return read_counts(connect())
 
 
-def reset(config: Config) -> None:
+def reset(config: Config, settings: Settings) -> dict:
     """Teardown/reset the simulation"""
     reset_celery(celery)
     reset_counts(connect())
+    return {}
 
 
 def init_workers(
@@ -104,11 +113,14 @@ def check_if_ready(config: Config, settings: Settings) -> dict:
 
 def start_workers(celery: Celery) -> None:
     """Shutdown all celery workers and purge the queue."""
+    print("Started start_workers")
     celery.control.add_consumer("celery")
+    print("Finished start_workers")
 
 
 def reset_celery(celery: Celery) -> None:
     """Shutdown all celery workers and purge the queue."""
+    print("Start reset celery")
     celery.control.shutdown()
 
     # As a fallback, let's also stop workers from the command line.
@@ -124,6 +136,7 @@ def reset_celery(celery: Celery) -> None:
     time.sleep(2)
 
     celery.control.purge()
+    print("End reset celery")
 
 
 # def workers_exist(celery: Celery) -> bool:
@@ -145,6 +158,7 @@ class RedisTask(Task):
     def __init__(self):
         super().__init__()
         self._redis = connect()
+        self._seed = os.getpid()
 
     @cached_property
     def redis(self):
@@ -160,5 +174,6 @@ def message_task(
     failure_rate: float = 0.0,
     delaydist: tuple[float, float],
 ) -> bool:
+    delaydist = (*delaydist, self._seed)
     delay, failed = send_message(message, phone_number, failure_rate, delaydist)
     return bool(update_counts(self.redis, delay, failed))

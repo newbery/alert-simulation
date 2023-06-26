@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -6,7 +6,6 @@ from .dispatch import Backend
 from .settings import Settings
 
 app = FastAPI()
-
 app.mount("/app", StaticFiles(directory="frontend/build", html=True), name="home")
 app.mount("/static", StaticFiles(directory="frontend/build/static"), name="static")
 

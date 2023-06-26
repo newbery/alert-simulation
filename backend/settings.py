@@ -1,4 +1,4 @@
-from functools import lru_cache
+from functools import cache
 from typing import Annotated
 
 from fastapi import Depends
@@ -10,8 +10,7 @@ class Settings(BaseModel):
     """User-controlled settings"""
     
     session_id: str | None = None
-    session_name: str = "anon"
-    session_secret: str = "some-key-phrase"
+    session_key: str | None = None
 
     number_of_messages: int = 1000
     number_of_processes: int = 4
@@ -27,7 +26,9 @@ class Settings(BaseModel):
 current_settings = Settings()
 
 
-def check_session(settings: Settings, create: bool = False) -> tuple[bool, dict]:
+def check_session(
+    request_settings: Settings, create: bool = False
+) -> tuple[bool, dict]:
     """Check if request session matches the current session.
     Return current settings if it doesn't match or None otherwise.
 
@@ -35,45 +36,34 @@ def check_session(settings: Settings, create: bool = False) -> tuple[bool, dict]
     new session if one doesn't already exist. There is a small possibility
     of a race condition in this case but probably acceptable.
     
-    `session_id`: a unique session id generated in the browser and
-    echoed back in the response if it matches the current session.
+    `session_id`: a unique session id generated the server during session
+    initializating and is echoed back in the response if it matches the
+    current session.
 
-    `session_name`: a public name for the current session which is echoed
-    back in the response.
-
-    `session_secret`: a private secret entered by the user at the beginning
-    of a session to protect their session. The secret is never echoed back
-    in the response however it's not encrypted or hashed so don't use secrets
-    you wouldn't want other people to see. 
-    
-    An optional `management_secret` can be used to override the private secret
-    validation. See Config class in this module.
-
+    `session_key`: a management key entered by the user when attempting
+    to join an existing session. This value must match the `management_key`
+    maintained in the config and is never echoed back in the response.
     """
-    request_id = settings.session_id
-    request_name = settings.session_name
-    request_secret = settings.session_secret
+    request_id = request_settings.session_id
+    request_key = request_settings.session_key
+    request_settings.session_key = ""  # Don't leak the management key
 
     # maybe start a new session
-    if current_settings.session_id is None and all((create, request_id, request_name, request_secret)):
-        reset_settings(**settings.dict())
-        result = current_settings.dict()
+    if current_settings.session_id is None and all((create, request_id)):
+        reset_settings(**request_settings.dict())
 
-    current_id = current_settings.session_id
-    current_name = current_settings.session_name
-    current_secret = current_settings.session_secret
-    management_secret = config().management_secret
-    
     # default result
     result_dict = current_settings.dict()
-    del result_dict["session_secret"]  # Don't leak this
+
+    current_id = current_settings.session_id
+    management_key = config().management_key
 
     # request session matches current session
-    if (request_id, request_name, request_secret) == (current_id, current_name, current_secret):
+    if request_id == current_id:
         session_ok = True
 
     # management override matches all sessions
-    elif current_id and management_secret and request_secret == management_secret:
+    elif current_id and management_key and request_key == management_key:
         result_dict["management_override"] = True
         session_ok = True
 
@@ -102,13 +92,13 @@ class _Config(BaseSettings):
 
     # The time it takes to send messages should be distributed as follows.
     # These values are in seconds.
-    message_time_mean: float = 5.0
+    message_time_mean: float = 10.0
     message_time_stdev: float = 2.0
     
     # Set to a non-empty string to enable management session override.
-    # It's probably best to put this value in the ".env" file rather
-    # than here in the code.
-    management_secret: str = ""
+    # It's probably better to put this value in the ".env" file rather
+    # than here in the code. Leave it blank to disable overrides.
+    management_key: str = "some-secret-key"  # TODO: remove this value from code
 
     # The following enables some magic provided by pydantic to
     # collect environment overrides from a ".env" file.
@@ -116,7 +106,7 @@ class _Config(BaseSettings):
         env_file = ".env"
 
 
-@lru_cache()
+@cache
 def config():
     return Config()
 

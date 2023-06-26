@@ -35,7 +35,7 @@ function App() {
     if (showJoin) {
       setAppState(AppState.JOIN);
     } else {
-      setAppState(AppState.READY);
+      setAppState(AppState.RUNNING);
     };
   };
 

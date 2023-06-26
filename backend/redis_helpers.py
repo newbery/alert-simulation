@@ -63,6 +63,7 @@ def update_counts(redis_conn: Redis, time_to_complete: float, failed: bool) -> f
     """Update counters on Redis. Returns the updated average."""
     keys = ("messages:sum", "messages:count", "messages:average", "failed")
     args = (time_to_complete, int(failed))
+    print("Update: ", args)
     return float(script(redis_conn)(keys, args, redis_conn) or 0)
 
 

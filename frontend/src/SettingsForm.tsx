@@ -22,8 +22,7 @@ function SettingsForm({ onSubmit, showJoin = false }: SettingsFormProps) {
         if (settings.sessionId !== data.session_id) {
           showJoin = true;
           settings.sessionId = data.session_id;
-          settings.sessionSecret = "";
-          settings.sessionName = data.session_name;
+          settings.sessionKey = "";
           settings.numberOfMessages = data.number_of_messages;
           settings.numberOfProcesses = data.number_of_processes;
           settings.failureRate = data.failure_rate;
@@ -53,17 +52,8 @@ function SettingsForm({ onSubmit, showJoin = false }: SettingsFormProps) {
   return (
     <form aria-label="Settings Form" onSubmit={ handleSubmit(handleSubmit2) }>
  
-      <div id="sessionName" className="row">
-        <label htmlFor="sessionName">Session name (example: "Jane Smith"):</label>
-        <input type="text" { ...register("sessionName", { required: "session name is required" }) } />
-        { errors.sessionName && <span className="error">{errors.sessionName.message}</span> }
-      </div>
-
-      <div id="sessionSecret" className="row">
-        <label htmlFor="sessionSecret">Session key (allows session sharing):</label>
-        <input type="text" { ...register("sessionSecret", { required: "session key is required" }) } />
-        { errors.sessionSecret && <span className="error">{errors.sessionSecret.message}</span> }
-      </div>
+      <input type="hidden" { ...register("sessionId") } />
+      <input type="hidden" { ...register("sessionKey") } />
 
       <div id="numberOfMessages" className="row">
         <label htmlFor="numberOfMessages">No. of messages (max: 1000000):</label>

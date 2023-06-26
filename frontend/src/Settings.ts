@@ -1,10 +1,8 @@
 import { v4 as uuid } from 'uuid';
-import { generate } from 'random-words';
 
 export interface Settings {
   sessionId: string;
-  sessionName: string;
-  sessionSecret: string;
+  sessionKey: string;
   numberOfMessages: number;
   numberOfProcesses: number;
   failureRate: number;
@@ -13,8 +11,7 @@ export interface Settings {
 
 export const defaultSettings: Settings = {
   sessionId: uuid(),
-  sessionName: "anon",
-  sessionSecret: generate({ exactly: 3, maxLength: 6, join: "-" }),
+  sessionKey: "",
   numberOfMessages: 1000,
   numberOfProcesses: 4,
   failureRate: 0.0,
