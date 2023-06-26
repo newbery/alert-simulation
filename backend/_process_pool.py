@@ -53,18 +53,13 @@ def reset_simulation():
     # It turns off the loop before shutting down the executor.
     executor_, executor = executor, None
 
-    # reset counts and settings early in case the next bit takes a while
-    # redis_conn = connect()
-    # reset_counts(redis_conn)
+    # reset settings early in case the next bit takes a while
     reset_settings()
 
     if executor_ is not None:
         print("Start executor shutdown")
         executor_.shutdown(wait=True, cancel_futures=True)
         print("Finished executor shutdown")
-
-        # reset counts once more in case any stragglers snuck in during shutdown
-        # reset_counts(redis_conn)
 
 
 def set_executor(e: futures.Executor | None) -> None:
@@ -75,6 +70,7 @@ def set_executor(e: futures.Executor | None) -> None:
     else:
         # This shouldn't happen but, just in case it does, let's initiate a reset.
         reset_simulation()
+        reset_counts(connect())
         set_executor(e)
 
 

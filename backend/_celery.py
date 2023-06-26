@@ -53,6 +53,7 @@ def ready(config: Config, settings: Settings) -> dict:
 
 def start(config: Config, settings: Settings, background: BackgroundTasks) -> dict:
     """Start the simulation"""
+    reset_counts(connect())
     start_workers(celery)
     return {}
 
@@ -63,9 +64,8 @@ def status(config: Config, settings: Settings) -> dict:
 
 
 def reset(config: Config, settings: Settings) -> dict:
-    """Teardown/reset the simulation"""
+    """Tear down the simulation"""
     reset_celery(celery)
-    reset_counts(connect())
     return {}
 
 
@@ -110,7 +110,7 @@ def check_if_ready(config: Config, settings: Settings) -> dict:
 
 
 def start_workers(celery: Celery) -> None:
-    """Shutdown all celery workers and purge the queue."""
+    """Tell the workers to start consuming the queue."""
     print("Started start_workers")
     celery.control.add_consumer("celery")
     print("Finished start_workers")

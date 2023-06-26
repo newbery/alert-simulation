@@ -87,8 +87,8 @@ class _Config(BaseSettings):
 
     # We're using standard defaults for now so these url settings
     # are just unused placeholders for now.
-    redis_url: str = "redis://redis:6379"
-    rabbitmq_url: str = "redis://redis:6379"
+    # redis_url: str = "redis://redis:6379"
+    # rabbitmq_url: str = "redis://redis:6379"
 
     # The time it takes to send messages should be distributed as follows.
     # These values are in seconds.

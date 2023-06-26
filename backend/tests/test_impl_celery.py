@@ -51,13 +51,16 @@ def test_ready(config, settings, mocker):
 
 
 def test_start(config, settings, mocker):
-    """The 'start' func should broadcast to the waiting workers to start
-    consuming from the Celery queue. This function should return an empty dict.
+    """The 'start' func should first reset the counts and then broadcast
+    to the waiting workers to start consuming from the Celery queue.
+    This function should return an empty dict.
     """
     background = None
+    reset_counts = mocker.patch.object(impl, "reset_counts")
     start_workers = mocker.patch.object(impl, "start_workers")
     result = impl.start(config, settings, background)
 
+    reset_counts.assert_called_once()
     start_workers.assert_called_once()
     assert result == {}
 
@@ -73,13 +76,9 @@ def test_status(config, settings, mocker):
 
 
 def test_reset(config, settings, mocker):
-    """The 'reset' func should reset the celery app, reset counts,
-    and return an empty dict.
-    """
+    """The 'reset' func should reset the celery app and return an empty dict."""
     reset_celery = mocker.patch.object(impl, "reset_celery")
-    reset_counts = mocker.patch.object(impl, "reset_counts")
     result = impl.reset(config, settings)
 
     reset_celery.assert_called_once()
-    reset_counts.assert_called_once()
     assert result == {}
